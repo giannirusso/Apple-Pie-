@@ -15,7 +15,7 @@ class ViewController: UIViewController {
     @IBOutlet weak var correctWordLabel: UILabel!
     @IBOutlet weak var scoreLabel: UILabel!
     
-//    MARK: - Properties
+    //    MARK: - Properties
     var currentGame: Game!
     let incorrectMovesAllowed = 7
     var listOfWords = [
@@ -103,19 +103,30 @@ class ViewController: UIViewController {
     var totalWins = 0
     var totalLosses = 0
     
-//    MARK: - Methods
+    //MARK: - Methods
     func newRound() {
         let newWord = listOfWords.removeFirst()
         currentGame = Game(word: newWord, incorrectMovesRemaining: incorrectMovesAllowed)
         updateUI()
     }
+    func updateCorrectWordLabel() {
+        var displayWord = [String]()
+        for letter in currentGame.guessedWord {
+            displayWord.append(String(letter))
+        }
+        correctWordLabel.text = displayWord.joined(separator: " ")
+        
+    }
     
     func updateUI() {
         let movesRemaining = currentGame.incorrectMovesRemaining
-        let image = "Tree\(movesRemaining < 8 ? movesRemaining : 7)"
+        let imageNumber = (movesRemaining + 64) % 8
+        let image = "Tree\(imageNumber)"
         treeImageView.image = UIImage(named: image)
+        updateCorrectWordLabel()
         scoreLabel.text = "Выигрыши: \(totalWins), Проигрыши: \(totalLosses)"
     }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         newRound()
@@ -123,11 +134,14 @@ class ViewController: UIViewController {
     }
     
     
-    
     //MARK: - IB Actions
     
     @IBAction func letterButtonPressed(_ sender: UIButton) {
         sender.isEnabled = false
+        let letter = sender.title(for: .normal)!
+        currentGame.playerGuessed(letter: Character(letter))
+        updateUI()
+        
     }
     
 }
